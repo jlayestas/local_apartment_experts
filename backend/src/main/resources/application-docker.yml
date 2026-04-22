@@ -1,0 +1,26 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://db:5432/crm_dev
+    username: crm_user
+    password: crm_pass
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+
+  jpa:
+    show-sql: false
+
+server:
+  servlet:
+    session:
+      cookie:
+        secure: false   # no HTTPS in local Docker
+
+app:
+  cors:
+    allowed-origins: http://localhost:3000
+
+logging:
+  level:
+    com.localapartmentexperts: INFO
+    org.flywaydb: INFO

@@ -1,0 +1,73 @@
+spring:
+  application:
+    name: crm
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/crm_dev
+    username: crm_user
+    password: crm_pass
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: false
+    out-of-order: false
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 12MB  # slightly larger than file limit to allow form fields
+
+server:
+  port: 8080
+  servlet:
+    session:
+      timeout: 86400s           # 24 hours
+      cookie:
+        name: CRM_SESSION
+        http-only: true
+        secure: false           # set to true in production (requires HTTPS)
+        same-site: strict
+
+app:
+  cors:
+    allowed-origins: http://localhost:3000,http://localhost:3001
+
+  storage:
+    # Local filesystem storage for dev/staging.
+    # In production, replace LocalStorageService with an S3StorageService bean
+    # and set upload-dir / base-url via environment variables or application-prod.yml.
+    upload-dir: ./uploads
+    base-url: http://localhost:8080/uploads
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+logging:
+  level:
+    com.localapartmentexperts: DEBUG
+    org.springframework.security: INFO
+    org.flywaydb: INFO

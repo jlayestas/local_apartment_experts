@@ -1,0 +1,220 @@
+package com.localapartmentexperts.crm.property;
+
+import com.localapartmentexperts.crm.BaseIntegrationTest;
+import com.localapartmentexperts.crm.property.dto.CreatePropertyRequest;
+import org.junit.jupiter.api.Test;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+
+import static org.hamcrest.Matchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@Transactional
+@Rollback
+@WithMockUser(username = "admin@test.local", roles = {"ADMIN"})
+class PropertyCrudTest extends BaseIntegrationTest {
+
+    private static CreatePropertyRequest minimalProperty() {
+        return new CreatePropertyRequest(
+                "Test Apartment", null,
+                null, null,
+                "Calle Reforma 123", null,
+                "Polanco", "Ciudad de México", "CDMX",
+                null, null, null,
+                new BigDecimal("8500"), "MONTHLY",
+                "APARTMENT",
+                (short) 2, (short) 1,
+                new BigDecimal("65"), null,
+                false,
+                null, null, null,
+                null, null,
+                null, null, null
+        );
+    }
+
+    // ── POST /api/v1/properties ───────────────────────────────────────────────
+
+    @Test
+    void createProperty_withValidData_returns201AndDraftStatus() throws Exception {
+        mockMvc.perform(post("/api/v1/properties")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(minimalProperty())))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.title").value("Test Apartment"))
+                .andExpect(jsonPath("$.data.status").value("DRAFT"));
+    }
+
+    @Test
+    void createProperty_missingTitle_returns400() throws Exception {
+        var req = new CreatePropertyRequest(
+                "", null, null, null,
+                "Calle Reforma 123", null, null, "Ciudad de México", "CDMX",
+                null, null, null,
+                new BigDecimal("8500"), "MONTHLY",
+                "APARTMENT",
+                (short) 2, (short) 1, null, null, false,
+                null, null, null, null, null, null, null, null
+        );
+        mockMvc.perform(post("/api/v1/properties")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(req)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createProperty_missingCity_returns400() throws Exception {
+        var req = new CreatePropertyRequest(
+                "No City Property", null, null, null,
+                "Calle Reforma 123", null, null, "", "CDMX",
+                null, null, null,
+                new BigDecimal("8500"), "MONTHLY",
+                "APARTMENT",
+                (short) 2, (short) 1, null, null, false,
+                null, null, null, null, null, null, null, null
+        );
+        mockMvc.perform(post("/api/v1/properties")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(req)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createProperty_invalidPropertyType_returns400() throws Exception {
+        var req = new CreatePropertyRequest(
+                "Bad Type", null, null, null,
+                "Calle 1", null, null, "CDMX", "CDMX",
+                null, null, null,
+                new BigDecimal("5000"), "MONTHLY",
+                "CAVE",
+                (short) 1, (short) 1, null, null, false,
+                null, null, null, null, null, null, null, null
+        );
+        mockMvc.perform(post("/api/v1/properties")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(req)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createProperty_invalidPriceFrequency_returns400() throws Exception {
+        var req = new CreatePropertyRequest(
+                "Bad Freq", null, null, null,
+                "Calle 1", null, null, "CDMX", "CDMX",
+                null, null, null,
+                new BigDecimal("5000"), "YEARLY",
+                "APARTMENT",
+                (short) 1, (short) 1, null, null, false,
+                null, null, null, null, null, null, null, null
+        );
+        mockMvc.perform(post("/api/v1/properties")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(req)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createProperty_slugIsAutoGenerated() throws Exception {
+        mockMvc.perform(post("/api/v1/properties")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(minimalProperty())))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.data.slug").isNotEmpty());
+    }
+
+    // ── GET /api/v1/properties ────────────────────────────────────────────────
+
+    @Test
+    void listProperties_emptyDatabase_returnsEmptyPage() throws Exception {
+        mockMvc.perform(get("/api/v1/properties"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.content").isArray())
+                .andExpect(jsonPath("$.data.totalElements").value(0));
+    }
+
+    @Test
+    void listProperties_afterCreation_returnsProperty() throws Exception {
+        mockMvc.perform(post("/api/v1/properties")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(minimalProperty())));
+
+        mockMvc.perform(get("/api/v1/properties"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.content", hasSize(greaterThanOrEqualTo(1))));
+    }
+
+    @Test
+    void listProperties_filterByStatus_returnsMatchingOnly() throws Exception {
+        mockMvc.perform(post("/api/v1/properties")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(minimalProperty())));
+
+        mockMvc.perform(get("/api/v1/properties").param("status", "DRAFT"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.content[*].status", everyItem(is("DRAFT"))));
+    }
+
+    @Test
+    void listProperties_searchByTitle_filtersResults() throws Exception {
+        mockMvc.perform(post("/api/v1/properties")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(minimalProperty())));
+
+        mockMvc.perform(get("/api/v1/properties").param("search", "Test Apartment"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.content[0].title").value("Test Apartment"));
+    }
+
+    // ── GET /api/v1/properties/{id} ───────────────────────────────────────────
+
+    @Test
+    void getPropertyById_existingProperty_returnsDetail() throws Exception {
+        MvcResult created = mockMvc.perform(post("/api/v1/properties")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(minimalProperty())))
+                .andReturn();
+
+        String id = objectMapper.readTree(created.getResponse().getContentAsString())
+                .at("/data/id").asText();
+
+        mockMvc.perform(get("/api/v1/properties/" + id))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.id").value(id))
+                .andExpect(jsonPath("$.data.addressLine1").value("Calle Reforma 123"));
+    }
+
+    @Test
+    void getPropertyById_nonExistentId_returns404() throws Exception {
+        mockMvc.perform(get("/api/v1/properties/00000000-0000-0000-0000-000000000000"))
+                .andExpect(status().isNotFound());
+    }
+
+    // ── PATCH /api/v1/properties/{id} ─────────────────────────────────────────
+
+    @Test
+    void updateProperty_changesTitle() throws Exception {
+        MvcResult created = mockMvc.perform(post("/api/v1/properties")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(minimalProperty())))
+                .andReturn();
+
+        String id = objectMapper.readTree(created.getResponse().getContentAsString())
+                .at("/data/id").asText();
+
+        String patch = """
+                {"title":"Updated Title"}
+                """;
+
+        mockMvc.perform(patch("/api/v1/properties/" + id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(patch))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.title").value("Updated Title"));
+    }
+}

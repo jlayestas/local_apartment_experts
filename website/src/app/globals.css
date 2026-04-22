@@ -1,0 +1,150 @@
+@import "tailwindcss";
+
+/* ── Design tokens ─────────────────────────────────────────────────────────── */
+
+@theme {
+  /* Font — loaded via next/font/google in layout.tsx */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* Brand palette — teal, Miami coastal */
+  --color-brand-50:  #f0fdfa;
+  --color-brand-100: #ccfbf1;
+  --color-brand-200: #99f6e4;
+  --color-brand-500: #14b8a6;
+  --color-brand-600: #0d9488;
+  --color-brand-700: #0f766e;
+  --color-brand-800: #115e59;
+
+  /* Neutral surface tokens */
+  --color-surface:      #ffffff;
+  --color-surface-subtle: #f9fafb;
+  --color-surface-raised: #ffffff;
+
+  /* Border */
+  --color-border:       #e5e7eb;
+  --color-border-focus: #14b8a6;
+
+  /* Text */
+  --color-text-primary:   #111827;
+  --color-text-secondary: #4b5563;
+  --color-text-muted:     #9ca3af;
+  --color-text-inverted:  #ffffff;
+
+  /* Feedback */
+  --color-error:   #dc2626;
+  --color-success: #16a34a;
+
+  /* Shape */
+  --radius-sm:   0.375rem;  /* 6px  */
+  --radius-md:   0.5rem;    /* 8px  */
+  --radius-lg:   0.75rem;   /* 12px */
+  --radius-xl:   1rem;      /* 16px */
+  --radius-full: 9999px;
+
+  /* Spacing scale for section rhythm */
+  --section-sm: 2.5rem;    /* 40px  */
+  --section-md: 4rem;      /* 64px  */
+  --section-lg: 6rem;      /* 96px  */
+}
+
+/* ── Base resets ───────────────────────────────────────────────────────────── */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.625;
+  color: var(--color-text-primary);
+  background-color: var(--color-surface);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Typography defaults ───────────────────────────────────────────────────── */
+/*
+  These apply only where utility classes are intentionally absent —
+  e.g. CMS/backend-supplied description text rendered in .prose-listing.
+  All component headings should use explicit Tailwind classes.
+*/
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  color: var(--color-text-primary);
+}
+
+p {
+  line-height: 1.75;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ── Focus ring (global baseline) ──────────────────────────────────────────── */
+/*
+  Components override this with their own ring colors.
+  This ensures nothing is invisible if a component's focus style is missing.
+*/
+:focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ── Selection ─────────────────────────────────────────────────────────────── */
+
+::selection {
+  background-color: var(--color-brand-100);
+  color: var(--color-brand-800);
+}
+
+/* ── Prose context ─────────────────────────────────────────────────────────── */
+/*
+  Used on listing detail pages where backend-supplied description text
+  is rendered without individual class names.
+*/
+.prose-listing {
+  color: var(--color-text-secondary);
+  line-height: 1.8;
+  font-size: 1rem;
+}
+
+.prose-listing p + p {
+  margin-top: 1.25em;
+}
+
+.prose-listing ul {
+  margin-top: 0.75em;
+  padding-left: 1.5em;
+  list-style-type: disc;
+}
+
+.prose-listing li {
+  margin-top: 0.25em;
+}
+
+/* ── Scrollbar (optional polish for WebKit) ────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #d1d5db;
+  border-radius: 9999px;
+}

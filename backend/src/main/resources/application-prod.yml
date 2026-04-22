@@ -1,0 +1,48 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+
+  jpa:
+    show-sql: false
+
+server:
+  servlet:
+    session:
+      timeout: 86400s
+      cookie:
+        name: CRM_SESSION
+        secure: true       # HTTPS only — required in prod, and mandatory when same-site=none
+        http-only: true    # not accessible via JS — prevents XSS session theft
+        # same-site: choose based on deployment topology — see comments below
+        #
+        # OPTION A — same registrable domain (e.g. app.example.com + api.example.com)
+        #   same-site: strict
+        #
+        # OPTION B — different domains (e.g. vercel.app frontend + onrender.com backend)
+        #   same-site: none
+        #   (SameSite=None requires secure=true; CSRF protection relies on CORS config)
+        #
+        same-site: ${COOKIE_SAME_SITE}
+
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS}
+
+  storage:
+    bucket: ${STORAGE_BUCKET}
+    base-url: ${STORAGE_BASE_URL}
+    region: ${STORAGE_REGION:auto}
+    endpoint-url: ${STORAGE_ENDPOINT_URL:}
+    access-key-id: ${STORAGE_ACCESS_KEY_ID}
+    secret-access-key: ${STORAGE_SECRET_ACCESS_KEY}
+
+logging:
+  level:
+    com.localapartmentexperts: INFO
+    org.springframework.security: WARN
+    org.flywaydb: WARN

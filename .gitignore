@@ -1,0 +1,27 @@
+# ── Env files — never commit secrets ──────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+
+# ── macOS ──────────────────────────────────────────────────────────────────────
+.DS_Store
+
+# ── Backend ────────────────────────────────────────────────────────────────────
+backend/target/
+backend/uploads/
+backend/*.log
+backend/.mvn/wrapper/maven-wrapper.jar
+
+# ── Frontend ───────────────────────────────────────────────────────────────────
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/*.log
+frontend/tsconfig.tsbuildinfo
+frontend/playwright-report/
+frontend/test-results/
+website/node_modules/
+website/.next/
+website/out/
+website/*.log
+website/tsconfig.tsbuildinfo
