@@ -38,6 +38,7 @@ export type PropertySummary = {
   bedrooms: number | null;
   bathrooms: number | null;
   squareFeet: number | null;
+  availableDate: string | null;
   status: PropertyStatus;
   featured: boolean;
   contactPhone: string | null;

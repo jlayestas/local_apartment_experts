@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   addLeadPropertyLink,
   getLeadPropertyLinks,
-  getRecommendedProperties,
   removeLeadPropertyLink,
   updateLeadPropertyLink,
 } from "@/lib/api/leads";
@@ -13,7 +12,8 @@ import { getProperties } from "@/lib/api/properties";
 import { useTranslations } from "@/lib/i18n";
 import Button from "@/components/ui/Button";
 import Spinner from "@/components/ui/Spinner";
-import type { LeadPropertyLink, LinkType, RecommendedProperty } from "@/types/lead";
+import RecommendedPropertiesSection from "./RecommendedPropertiesSection";
+import type { LeadPropertyLink, LinkType } from "@/types/lead";
 import type { PropertySummary } from "@/types/property";
 
 const LINK_TYPES: LinkType[] = ["SUGGESTED", "INTERESTED", "TOURED", "REJECTED"];
@@ -36,133 +36,6 @@ function formatPrice(price: number | null, frequency: string | null, freqMap: Re
   }).format(price);
   const freq = frequency ? freqMap[frequency] : "";
   return freq ? `${formatted} ${freq}` : formatted;
-}
-
-// ── RecommendedPropertiesSection ──────────────────────────────────────────────
-
-type RecommendedPropertiesSectionProps = {
-  leadId: string;
-  linkedIds: Set<string>;
-  onLinked: (link: LeadPropertyLink) => void;
-  t: ReturnType<typeof useTranslations>;
-};
-
-function RecommendedPropertiesSection({ leadId, linkedIds, onLinked, t }: RecommendedPropertiesSectionProps) {
-  const rt = t.leads.detail.properties.recommendations;
-  const [recs, setRecs] = useState<RecommendedProperty[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [suggestingId, setSuggestingId] = useState<string | null>(null);
-  const [suggestErrors, setSuggestErrors] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    getRecommendedProperties(leadId)
-      .then(setRecs)
-      .catch(() => setRecs([]))
-      .finally(() => setIsLoading(false));
-  }, [leadId]);
-
-  async function handleSuggest(property: RecommendedProperty["property"]) {
-    setSuggestingId(property.id);
-    setSuggestErrors((prev) => ({ ...prev, [property.id]: "" }));
-    try {
-      const link = await addLeadPropertyLink(leadId, { propertyId: property.id, linkType: "SUGGESTED" });
-      onLinked(link);
-    } catch {
-      setSuggestErrors((prev) => ({ ...prev, [property.id]: rt.suggestError }));
-    } finally {
-      setSuggestingId(null);
-    }
-  }
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center py-4">
-        <Spinner className="h-5 w-5 text-indigo-400" />
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-2">
-      <h4 className="text-xs font-semibold uppercase tracking-wide text-indigo-500">
-        {rt.sectionTitle}
-      </h4>
-
-      {recs.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-gray-200 py-5 text-center text-xs text-gray-400">
-          {rt.noRecommendations}
-        </p>
-      ) : (
-        <ul className="space-y-2">
-          {recs.map((rec) => {
-            const p = rec.property;
-            const alreadySuggested = linkedIds.has(p.id);
-            const isSuggesting = suggestingId === p.id;
-            const suggestError = suggestErrors[p.id];
-
-            return (
-              <li
-                key={p.id}
-                className="rounded-xl border border-indigo-100 bg-indigo-50/60 p-3 space-y-2"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <Link
-                      href={`/properties/${p.id}`}
-                      className="text-sm font-medium text-gray-900 hover:text-indigo-600 transition-colors truncate block"
-                    >
-                      {p.title}
-                    </Link>
-                    <p className="mt-0.5 text-xs text-gray-500">
-                      {[p.neighborhood, p.city].filter(Boolean).join(", ")}
-                      {p.bedrooms != null && ` · ${p.bedrooms} ${t.properties.table.beds}`}
-                      {p.price != null && ` · ${formatPrice(p.price, p.priceFrequency, t.properties.priceFrequency)}`}
-                    </p>
-                  </div>
-
-                  <div className="flex shrink-0 flex-col items-end gap-1.5">
-                    <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold tabular-nums text-indigo-700">
-                      {rec.score} {rt.scoreLabel}
-                    </span>
-                    <Button
-                      size="sm"
-                      variant={alreadySuggested ? "secondary" : "primary"}
-                      disabled={alreadySuggested || isSuggesting}
-                      isLoading={isSuggesting}
-                      onClick={() => !alreadySuggested && handleSuggest(p)}
-                    >
-                      {isSuggesting
-                        ? rt.suggesting
-                        : alreadySuggested
-                        ? "✓ " + rt.alreadySuggested
-                        : rt.suggest}
-                    </Button>
-                  </div>
-                </div>
-
-                {rec.matchReasons.length > 0 && (
-                  <div className="flex flex-wrap gap-1">
-                    {rec.matchReasons.map((reason) => (
-                      <span
-                        key={reason}
-                        className="rounded-full bg-white border border-indigo-100 px-2 py-0.5 text-xs text-indigo-600"
-                      >
-                        {rt.matchReasonLabels[reason as keyof typeof rt.matchReasonLabels] ?? reason}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                {suggestError && (
-                  <p className="text-xs text-red-600">{suggestError}</p>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </div>
-  );
 }
 
 // ── PropertySearchPanel ───────────────────────────────────────────────────────
@@ -515,7 +388,6 @@ export default function PropertiesTab({ leadId }: { leadId: string }) {
         leadId={leadId}
         linkedIds={linkedIds}
         onLinked={handleLinked}
-        t={t}
       />
 
       {/* Divider */}

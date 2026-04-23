@@ -5,6 +5,7 @@ import com.localapartmentexperts.crm.property.PropertyStatus;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 
 /**
@@ -28,6 +29,8 @@ public record PropertySummaryDTO(
         Short bedrooms,
         Short bathrooms,
         BigDecimal squareFeet,
+
+        LocalDate availableDate,
 
         PropertyStatus status,
         boolean featured,
@@ -60,6 +63,8 @@ public record PropertySummaryDTO(
                 p.getBedrooms(),
                 p.getBathrooms(),
                 p.getSquareFeet(),
+
+                p.getAvailableDate(),
 
                 p.getStatus(),
                 p.isFeatured(),
