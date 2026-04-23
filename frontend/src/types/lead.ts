@@ -131,6 +131,12 @@ export type LeadPropertyLink = {
   property: LinkedPropertySummary;
 };
 
+export type RecommendedProperty = {
+  property: import("@/types/property").PropertySummary;
+  score: number;
+  matchReasons: string[];
+};
+
 export type CreateLeadPropertyLinkInput = {
   propertyId: string;
   linkType: LinkType;

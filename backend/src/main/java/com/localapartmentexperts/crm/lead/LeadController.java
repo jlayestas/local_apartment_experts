@@ -9,6 +9,7 @@ import com.localapartmentexperts.crm.lead.dto.ChangeStatusRequest;
 import com.localapartmentexperts.crm.lead.dto.CreateLeadRequest;
 import com.localapartmentexperts.crm.lead.dto.LeadDetailDTO;
 import com.localapartmentexperts.crm.lead.dto.LeadSummaryDTO;
+import com.localapartmentexperts.crm.lead.dto.RecommendedPropertyDTO;
 import com.localapartmentexperts.crm.lead.dto.UpdateLeadRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -21,6 +22,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -30,6 +32,7 @@ import java.util.UUID;
 public class LeadController {
 
     private final LeadService leadService;
+    private final PropertyRecommendationService recommendationService;
 
     // ── POST /api/v1/leads ────────────────────────────────────────────────────
 
@@ -105,5 +108,15 @@ public class LeadController {
 
         LeadDetailDTO updated = leadService.assign(id, request, authentication.getName());
         return ApiResponse.ok(updated, "Lead assigned");
+    }
+
+    // ── GET /api/v1/leads/{leadId}/recommended-properties ─────────────────────
+
+    @GetMapping("/{leadId}/recommended-properties")
+    public ApiResponse<List<RecommendedPropertyDTO>> getRecommendedProperties(
+            @PathVariable UUID leadId,
+            @RequestParam(defaultValue = "3") @Min(1) @Max(20) int limit) {
+
+        return ApiResponse.ok(recommendationService.recommend(leadId, limit));
     }
 }

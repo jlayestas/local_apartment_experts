@@ -187,6 +187,23 @@ export const es = {
         updateError: "No se pudo actualizar el vínculo",
         removeError: "No se pudo desvincular la propiedad",
         linkError: "No se pudo vincular la propiedad",
+        recommendations: {
+          sectionTitle: "Recomendaciones automáticas",
+          scoreLabel: "pts",
+          suggest: "Sugerir",
+          suggesting: "Sugiriendo...",
+          suggestError: "No se pudo sugerir la propiedad",
+          alreadySuggested: "Ya sugerida",
+          noRecommendations: "No hay recomendaciones disponibles para este prospecto. Completa el presupuesto, habitaciones o vecindarios preferidos.",
+          matchReasonLabels: {
+            "Price within budget": "Precio dentro del presupuesto",
+            "Price above max budget": "Precio sobre el máximo",
+            "Bedrooms match": "Habitaciones coinciden",
+            "Bedroom count does not match": "Habitaciones no coinciden",
+            "Neighborhood matches preferences": "Vecindario preferido",
+            "Available before move-in date": "Disponible antes de mudanza",
+          },
+        },
       },
       actions: {
         changeStatus: "Cambiar estado",

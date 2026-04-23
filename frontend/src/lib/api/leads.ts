@@ -9,6 +9,7 @@ import type {
   LeadPropertyLink,
   LeadSummary,
   Note,
+  RecommendedProperty,
   UpdateLeadInput,
   UpdateLeadPropertyLinkInput,
 } from "@/types/lead";
@@ -101,6 +102,17 @@ export function removeLeadPropertyLink(
   linkId: string
 ): Promise<void> {
   return api.delete<void>(`/leads/${leadId}/properties/${linkId}`);
+}
+
+// ── Recommendations ───────────────────────────────────────────────────────────
+
+export function getRecommendedProperties(
+  leadId: string,
+  limit = 3
+): Promise<RecommendedProperty[]> {
+  return api.get<RecommendedProperty[]>(
+    `/leads/${leadId}/recommended-properties?limit=${limit}`
+  );
 }
 
 // ── Users (for assignment dropdown) ───────────────────────────────────────────
