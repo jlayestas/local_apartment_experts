@@ -31,12 +31,6 @@ export default async function PropertyDetailPage({ params }: Props) {
     .filter((p) => p.id !== property.id)
     .slice(0, 3);
 
-  const whatsappHref = property.contactWhatsapp
-    ? `https://wa.me/${property.contactWhatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(
-        `Hi, I'm interested in: ${property.title}`
-      )}`
-    : null;
-
   const availableLabel = property.availableDate
     ? new Date(property.availableDate).toLocaleDateString("en-US", {
         day: "numeric",
@@ -53,7 +47,6 @@ export default async function PropertyDetailPage({ params }: Props) {
     <PropertyDetailContent
       property={property}
       similar={similar}
-      whatsappHref={whatsappHref}
       availableLabel={availableLabel}
       fullAddress={fullAddress}
     />

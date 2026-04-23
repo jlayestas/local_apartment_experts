@@ -52,7 +52,7 @@ export const translations = {
     "home.step1_title":  "Browse the catalog",
     "home.step1_desc":   "Explore our available properties and filter by neighborhood, price, or number of bedrooms.",
     "home.step2_title":  "Talk to your agent",
-    "home.step2_desc":   "Message us on WhatsApp or fill out the form. A local agent will reach out the same day.",
+    "home.step2_desc":   "Fill out the form or send us a message. A local agent will reach out the same day.",
     "home.step3_title":  "Tour and sign",
     "home.step3_desc":   "We schedule the tour, review the lease together, and support you all the way to move-in.",
 
@@ -80,7 +80,7 @@ export const translations = {
     // Homepage — bottom CTA
     "home.cta_title":       "Can't find what you're looking for?",
     "home.cta_subtitle":    "Tell us what you need and an agent will help you find the perfect rental in Miami.",
-    "home.cta_whatsapp":    "Chat on WhatsApp",
+    "home.cta_instagram":   "Follow on Instagram",
     "home.cta_message":     "Send a Message",
     "home.cta_disclaimer":  "No commitment. We respond within 24 hours.",
 
@@ -216,8 +216,9 @@ export const translations = {
     "contact.subtitle":      "Tell us what you're looking for and an agent will reach out within 24 hours.",
     "contact.send_message":  "Send Us a Message",
     "contact.send_subtitle": "Fill out the form and we'll be in touch shortly.",
-    "contact.prefer_text":   "Prefer to text?",
-    "contact.whatsapp_hours":"We're available on WhatsApp Monday through Friday, 9 am – 7 pm.",
+    "contact.prefer_text":      "Follow us on Instagram",
+    "contact.instagram_desc":   "See our latest listings and updates on Instagram.",
+    "contact.instagram_button": "View on Instagram",
     "contact.more_ways":     "More Ways to Reach Us",
     "contact.why_us":        "Why Choose Us?",
     "contact.trust1":        "Personalized service at no cost to you",
@@ -333,7 +334,7 @@ export const translations = {
     "home.step1_title":  "Explora el catálogo",
     "home.step1_desc":   "Navega entre nuestras propiedades disponibles y filtra por vecindario, precio o cantidad de habitaciones.",
     "home.step2_title":  "Habla con tu agente",
-    "home.step2_desc":   "Escríbenos por WhatsApp o llena el formulario. Un agente local te contactará ese mismo día.",
+    "home.step2_desc":   "Llena el formulario o envíanos un mensaje. Un agente local te contactará ese mismo día.",
     "home.step3_title":  "Tour y firma",
     "home.step3_desc":   "Agendamos la visita, revisamos el contrato juntos y te apoyamos hasta el día de mudanza.",
 
@@ -361,7 +362,7 @@ export const translations = {
     // Homepage — bottom CTA
     "home.cta_title":       "¿No encuentras lo que buscas?",
     "home.cta_subtitle":    "Cuéntanos qué necesitas y un agente te ayudará a encontrar el alquiler perfecto en Miami.",
-    "home.cta_whatsapp":    "Chatear por WhatsApp",
+    "home.cta_instagram":   "Seguir en Instagram",
     "home.cta_message":     "Enviar un Mensaje",
     "home.cta_disclaimer":  "Sin compromiso. Respondemos en 24 horas.",
 
@@ -497,8 +498,9 @@ export const translations = {
     "contact.subtitle":      "Cuéntanos qué buscas y un agente te contactará en menos de 24 horas.",
     "contact.send_message":  "Envíanos un Mensaje",
     "contact.send_subtitle": "Completa el formulario y nos pondremos en contacto pronto.",
-    "contact.prefer_text":   "¿Prefieres escribir?",
-    "contact.whatsapp_hours":"Estamos disponibles en WhatsApp de lunes a viernes, de 9 am a 7 pm.",
+    "contact.prefer_text":      "Síguenos en Instagram",
+    "contact.instagram_desc":   "Mira nuestras últimas propiedades y novedades en Instagram.",
+    "contact.instagram_button": "Ver en Instagram",
     "contact.more_ways":     "Otras Formas de Contactarnos",
     "contact.why_us":        "¿Por qué elegirnos?",
     "contact.trust1":        "Servicio personalizado sin costo para ti",
