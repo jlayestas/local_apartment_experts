@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { getDashboardSummary, getRecentLeads } from "@/lib/api/dashboard";
 import { getLeads } from "@/lib/api/leads";
-import { useAuthContext } from "@/lib/auth/context";
 import { useTranslations } from "@/lib/i18n";
 import { formatLocalDate, localToday } from "@/lib/utils/date";
 import Badge from "@/components/ui/Badge";
@@ -212,27 +211,21 @@ function RecentLeadsTable({
   );
 }
 
-// ── My follow-ups today ───────────────────────────────────────────────────────
+// ── Follow-ups today ─────────────────────────────────────────────────────────
 
-function MyFollowUps({
-  userId,
-  t,
-}: {
-  userId: string;
-  t: ReturnType<typeof useTranslations>;
-}) {
+function FollowUpsToday({ t }: { t: ReturnType<typeof useTranslations> }) {
   const [leads, setLeads] = useState<LeadSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const mf = t.dashboard.myFollowUps;
 
   useEffect(() => {
-    getLeads({ followUpDue: true, assignedUserId: userId, size: 10 })
+    getLeads({ followUpDue: true, size: 10 })
       .then((res) => setLeads(res.content))
       .catch(() => {})
       .finally(() => setIsLoading(false));
-  }, [userId]);
+  }, []);
 
-  const viewAllHref = `/leads?followUpDue=true&assignedUserId=${userId}`;
+  const viewAllHref = `/leads?followUpDue=true`;
 
   return (
     <div className="rounded-xl border border-gray-200 bg-white">
@@ -295,7 +288,6 @@ type PageState =
 
 export default function DashboardPage() {
   const t = useTranslations();
-  const { user } = useAuthContext();
   const [state, setState] = useState<PageState>({ status: "loading" });
 
   const load = useCallback(() => {
@@ -386,8 +378,8 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {/* My follow-ups today — shown to all logged-in users */}
-      {user && <MyFollowUps userId={user.id} t={t} />}
+      {/* Follow-ups due today */}
+      <FollowUpsToday t={t} />
 
       {/* Recent leads */}
       <div className="rounded-xl border border-gray-200 bg-white">

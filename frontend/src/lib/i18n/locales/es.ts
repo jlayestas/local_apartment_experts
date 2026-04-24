@@ -56,9 +56,9 @@ export const es = {
     recentLeads: "Prospectos recientes",
     viewAll: "Ver todos",
     myFollowUps: {
-      title: "Mis seguimientos de hoy",
-      empty: "No tienes seguimientos pendientes para hoy.",
-      viewAll: "Ver todos mis seguimientos",
+      title: "Seguimientos pendientes",
+      empty: "No hay seguimientos pendientes para hoy.",
+      viewAll: "Ver todos",
       overdue: "vencido",
     },
   },
