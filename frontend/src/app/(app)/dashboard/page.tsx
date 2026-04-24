@@ -6,6 +6,7 @@ import { getDashboardSummary, getRecentLeads } from "@/lib/api/dashboard";
 import { getLeads } from "@/lib/api/leads";
 import { useAuthContext } from "@/lib/auth/context";
 import { useTranslations } from "@/lib/i18n";
+import { formatLocalDate, localToday } from "@/lib/utils/date";
 import Badge from "@/components/ui/Badge";
 import Spinner from "@/components/ui/Spinner";
 import Button from "@/components/ui/Button";
@@ -223,7 +224,6 @@ function MyFollowUps({
   const [leads, setLeads] = useState<LeadSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const mf = t.dashboard.myFollowUps;
-  const today = new Date().toISOString().slice(0, 10);
 
   useEffect(() => {
     getLeads({ followUpDue: true, assignedUserId: userId, size: 10 })
@@ -255,7 +255,7 @@ function MyFollowUps({
       ) : (
         <ul className="divide-y divide-gray-100">
           {leads.map((lead) => {
-            const isOverdue = !!lead.nextFollowUpDate && lead.nextFollowUpDate < today;
+            const isOverdue = !!lead.nextFollowUpDate && lead.nextFollowUpDate < localToday();
             return (
               <li key={lead.id}>
                 <Link
@@ -268,10 +268,7 @@ function MyFollowUps({
                     </p>
                     {lead.nextFollowUpDate && (
                       <p className={`mt-0.5 text-xs ${isOverdue ? "text-red-500 font-medium" : "text-gray-400"}`}>
-                        {new Date(lead.nextFollowUpDate).toLocaleDateString("es-MX", {
-                          day: "numeric",
-                          month: "short",
-                        })}
+                        {formatLocalDate(lead.nextFollowUpDate, { day: "numeric", month: "short" })}
                         {isOverdue && ` · ${mf.overdue}`}
                       </p>
                     )}

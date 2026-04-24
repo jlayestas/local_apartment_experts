@@ -2,6 +2,7 @@
 
 import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { formatLocalDate, localToday } from "@/lib/utils/date";
 import {
   addLeadNote,
   assignLead,
@@ -43,11 +44,7 @@ function Field({ label, value }: { label: string; value: React.ReactNode }) {
 
 function formatDate(iso: string | null | undefined): string | null {
   if (!iso) return null;
-  return new Date(iso).toLocaleDateString("es-MX", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+  return formatLocalDate(iso, { day: "numeric", month: "long", year: "numeric" });
 }
 
 function formatBudget(min: number | null | undefined, max: number | null | undefined): string | null {
@@ -88,9 +85,8 @@ function OverviewTab({
   }, [lead.lastContactDate]);
 
   const CLOSED_STATUSES = new Set(["CLOSED_WON", "CLOSED_LOST", "UNRESPONSIVE"]);
-  const today = new Date().toISOString().slice(0, 10);
   const followUpIsOverdue =
-    !!followUpDate && followUpDate <= today && !CLOSED_STATUSES.has(lead.status);
+    !!followUpDate && followUpDate <= localToday() && !CLOSED_STATUSES.has(lead.status);
 
   async function handleDateSave(
     field: "nextFollowUpDate" | "lastContactDate",

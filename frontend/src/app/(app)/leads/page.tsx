@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { getLeads, getAssignableUsers } from "@/lib/api/leads";
 import { useTranslations } from "@/lib/i18n";
+import { formatLocalDate, localToday } from "@/lib/utils/date";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Spinner from "@/components/ui/Spinner";
@@ -48,6 +49,7 @@ function hasActiveFilters(f: LeadFilters): boolean {
 }
 
 function formatDate(iso: string): string {
+  // createdAt is a full datetime — safe to parse with new Date()
   return new Date(iso).toLocaleDateString("es-MX", {
     day: "numeric",
     month: "short",
@@ -333,11 +335,10 @@ function LeadsTable({ leads, t }: LeadsTableProps) {
 const CLOSED_STATUSES = new Set(["CLOSED_WON", "CLOSED_LOST", "UNRESPONSIVE"]);
 
 function FollowUpDate({ iso, status }: { iso: string; status: string }) {
-  const today = new Date().toISOString().slice(0, 10);
-  const isOverdue = iso <= today && !CLOSED_STATUSES.has(status);
+  const isOverdue = iso <= localToday() && !CLOSED_STATUSES.has(status);
   return (
     <span className={isOverdue ? "font-medium text-red-600" : "text-gray-600"}>
-      {formatDate(iso)}
+      {formatLocalDate(iso)}
     </span>
   );
 }
