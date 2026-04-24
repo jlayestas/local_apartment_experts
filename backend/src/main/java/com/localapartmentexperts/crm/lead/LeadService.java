@@ -12,6 +12,8 @@ import com.localapartmentexperts.crm.lead.dto.LeadDetailDTO;
 import com.localapartmentexperts.crm.lead.dto.LeadSummaryDTO;
 import com.localapartmentexperts.crm.lead.dto.PublicInquiryRequest;
 import com.localapartmentexperts.crm.lead.dto.UpdateLeadRequest;
+import com.localapartmentexperts.crm.property.Property;
+import com.localapartmentexperts.crm.property.PropertyRepository;
 import com.localapartmentexperts.crm.user.User;
 import com.localapartmentexperts.crm.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +39,8 @@ public class LeadService {
     private final UserRepository userRepository;
     private final LeadStatusHistoryRepository statusHistoryRepository;
     private final LeadAssignmentRepository assignmentRepository;
+    private final LeadPropertyLinkRepository leadPropertyLinkRepository;
+    private final PropertyRepository propertyRepository;
     private final ActivityService activityService;
 
     // ── Public website lead ───────────────────────────────────────────────────
@@ -51,6 +55,16 @@ public class LeadService {
                 .source(LeadSource.WEBSITE)
                 .build();
         leadRepository.save(lead);
+
+        if (req.propertyId() != null) {
+            propertyRepository.findById(req.propertyId()).ifPresent(property ->
+                leadPropertyLinkRepository.save(LeadPropertyLink.builder()
+                        .lead(lead)
+                        .property(property)
+                        .linkType(LeadPropertyLinkType.INTERESTED)
+                        .build())
+            );
+        }
     }
 
     // ── Create ────────────────────────────────────────────────────────────────

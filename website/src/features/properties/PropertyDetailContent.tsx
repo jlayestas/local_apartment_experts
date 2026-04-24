@@ -118,6 +118,9 @@ export default function PropertyDetailContent({ property, similar, availableLabe
                   {fullAddress}
                 </p>
               )}
+              {property.referenceCode && (
+                <p className="mt-1 text-xs text-gray-400 font-mono">{property.referenceCode}</p>
+              )}
             </div>
 
             {/* Specs bar */}
@@ -185,7 +188,7 @@ export default function PropertyDetailContent({ property, similar, availableLabe
             <div id="inquiry" className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm lg:hidden">
               <h2 className="mb-1 text-lg font-semibold text-gray-900">{t("detail.interested")}</h2>
               <p className="mb-5 text-sm text-gray-500">{t("detail.agent_reach")}</p>
-              <ContactCTA context={property.title} />
+              <ContactCTA context={property.title} propertyId={property.id} />
             </div>
 
           </div>
@@ -205,7 +208,7 @@ export default function PropertyDetailContent({ property, similar, availableLabe
               <h2 className="mb-1 mt-4 text-base font-semibold text-gray-900">{t("detail.interested")}</h2>
               <p className="mb-5 text-sm text-gray-500">{t("detail.agent_reach")}</p>
 
-              <ContactCTA context={property.title} />
+              <ContactCTA context={property.title} propertyId={property.id} />
 
               {property.contactPhone && (
                 <p className="mt-4 text-center text-xs text-gray-400">

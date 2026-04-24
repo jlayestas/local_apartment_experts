@@ -4,6 +4,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import java.util.UUID;
+
 /**
  * Minimal payload accepted by the unauthenticated public lead creation endpoint.
  * Source is always set to WEBSITE by the backend — callers cannot override it.
@@ -27,6 +29,9 @@ public record PublicInquiryRequest(
         String email,
 
         @Size(max = 2000)
-        String message
+        String message,
+
+        /** Optional — set when the inquiry comes from a specific property listing page. */
+        UUID propertyId
 
 ) {}

@@ -48,6 +48,7 @@ export type PropertyDetail = {
   id: string;
   title: string;
   slug: string;
+  referenceCode: string;
   description: string | null;
   addressLine1: string;
   addressLine2: string | null;

@@ -17,6 +17,7 @@ public record PropertySummaryDTO(
         UUID id,
         String title,
         String slug,
+        String referenceCode,
 
         String neighborhood,
         String city,
@@ -51,6 +52,7 @@ public record PropertySummaryDTO(
                 p.getId(),
                 p.getTitle(),
                 p.getSlug(),
+                p.getReferenceCode(),
 
                 p.getNeighborhood(),
                 p.getCity(),

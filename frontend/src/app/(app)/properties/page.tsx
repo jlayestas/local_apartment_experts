@@ -153,6 +153,7 @@ function PropertiesTable({
   const pt = t.properties;
 
   const COLUMNS = [
+    pt.table.ref,
     pt.table.title,
     pt.table.location,
     pt.table.type,
@@ -192,6 +193,12 @@ function PropertiesTable({
                 onClick={() => router.push(`/properties/${property.id}`)}
                 className="cursor-pointer hover:bg-gray-50 transition-colors"
               >
+                <td className="px-5 py-3.5 whitespace-nowrap">
+                  <span className="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-mono text-gray-500">
+                    {property.referenceCode}
+                  </span>
+                </td>
+
                 <td className="px-5 py-3.5 font-medium text-gray-900 max-w-[220px] truncate">
                   <Link
                     href={`/properties/${property.id}`}

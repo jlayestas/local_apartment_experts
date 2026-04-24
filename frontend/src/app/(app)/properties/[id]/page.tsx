@@ -374,8 +374,11 @@ export default function PropertyDetailPage({
           >
             ← {t.common.back}
           </button>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <h1 className="text-2xl font-semibold text-gray-900">{property.title}</h1>
+            <span className="rounded bg-gray-100 px-2 py-0.5 text-xs font-mono text-gray-500">
+              {property.referenceCode}
+            </span>
             <Badge
               variant="propertyStatus"
               value={property.status}

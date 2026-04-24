@@ -24,6 +24,7 @@ public record InternalPropertyDTO(
         // Content
         String title,
         String slug,
+        String referenceCode,
         String description,
         String internalNotes,   // exposed to internal users only
 
@@ -83,6 +84,7 @@ public record InternalPropertyDTO(
 
                 p.getTitle(),
                 p.getSlug(),
+                p.getReferenceCode(),
                 p.getDescription(),
                 p.getInternalNotes(),
 

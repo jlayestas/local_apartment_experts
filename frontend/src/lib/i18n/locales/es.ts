@@ -289,6 +289,7 @@ export const es = {
     noProperties: "No se encontraron propiedades",
 
     table: {
+      ref: "Ref.",
       title: "Título",
       location: "Ubicación",
       price: "Precio",

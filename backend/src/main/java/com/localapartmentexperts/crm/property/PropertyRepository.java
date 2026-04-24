@@ -2,6 +2,7 @@ package com.localapartmentexperts.crm.property;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -18,4 +19,7 @@ public interface PropertyRepository extends JpaRepository<Property, UUID>,
     Optional<Property> findBySlug(String slug);
 
     boolean existsBySlug(String slug);
+
+    @Query(value = "SELECT nextval('property_ref_seq')", nativeQuery = true)
+    long nextRefSequence();
 }

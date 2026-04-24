@@ -6,6 +6,7 @@ export interface PublicInquiryPayload {
   phone: string;
   email?: string;
   message?: string;
+  propertyId?: string;
 }
 
 export function submitPublicLead(payload: PublicInquiryPayload): Promise<void> {

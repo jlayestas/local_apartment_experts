@@ -20,9 +20,9 @@ public record PropertyDTO(
         // Content
         String title,
         String slug,
+        String referenceCode,
         String description,
         // internal_notes intentionally omitted from this DTO.
-        // Add an InternalPropertyDTO when admin endpoints need it.
 
         // Location
         String addressLine1,
@@ -84,6 +84,7 @@ public record PropertyDTO(
 
                 p.getTitle(),
                 p.getSlug(),
+                p.getReferenceCode(),
                 p.getDescription(),
 
                 p.getAddressLine1(),

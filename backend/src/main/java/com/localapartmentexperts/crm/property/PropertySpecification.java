@@ -54,7 +54,8 @@ public final class PropertySpecification {
                         cb.like(cb.lower(root.get("title")), pattern),
                         cb.like(cb.lower(root.get("city")), pattern),
                         cb.like(cb.lower(root.get("neighborhood")), pattern),
-                        cb.like(cb.lower(root.get("addressLine1")), pattern)
+                        cb.like(cb.lower(root.get("addressLine1")), pattern),
+                        cb.like(cb.lower(root.get("referenceCode")), pattern)
                 ));
             }
 

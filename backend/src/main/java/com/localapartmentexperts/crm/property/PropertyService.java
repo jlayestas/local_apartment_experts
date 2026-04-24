@@ -63,9 +63,12 @@ public class PropertyService {
                 ? resolveUser(req.listingAgentId())
                 : null;
 
+        String referenceCode = String.format("LAE-%04d", propertyRepository.nextRefSequence());
+
         Property property = Property.builder()
                 .title(req.title())
                 .slug(slug)
+                .referenceCode(referenceCode)
                 .description(req.description())
                 .internalNotes(req.internalNotes())
                 .addressLine1(req.addressLine1())

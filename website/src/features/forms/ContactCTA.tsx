@@ -17,9 +17,10 @@ type ContactFormState = {
 
 type Props = {
   context?: string;
+  propertyId?: string;
 };
 
-export default function ContactCTA({ context }: Props) {
+export default function ContactCTA({ context, propertyId }: Props) {
   const { t } = useLanguage();
 
   const [form, setForm] = useState<ContactFormState>({
@@ -56,6 +57,7 @@ export default function ContactCTA({ context }: Props) {
         phone: form.phone,
         email: form.email || undefined,
         message: form.message || undefined,
+        propertyId: propertyId || undefined,
       });
       setSubmitted(true);
     } catch (err) {

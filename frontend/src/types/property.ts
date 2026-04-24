@@ -29,6 +29,7 @@ export type PropertySummary = {
   id: string;
   title: string;
   slug: string;
+  referenceCode: string;
   neighborhood: string | null;
   city: string;
   state: string;
@@ -51,6 +52,7 @@ export type PropertyDetail = {
   id: string;
   title: string;
   slug: string;
+  referenceCode: string;
   description: string | null;
   /** Omitted from public responses; only present for internal/admin endpoints. */
   internalNotes?: string | null;
