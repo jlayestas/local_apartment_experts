@@ -62,10 +62,12 @@ function formatBudget(min: number | null | undefined, max: number | null | undef
 function OverviewTab({
   lead,
   onUpdate,
+  onSaved,
   t,
 }: {
   lead: LeadDetail;
   onUpdate: (updated: LeadDetail) => void;
+  onSaved: () => void;
   t: ReturnType<typeof useTranslations>;
 }) {
   const ov = t.leads.detail.overview;
@@ -104,6 +106,7 @@ function OverviewTab({
         : { [field]: value };
       const updated = await updateLead(lead.id, payload);
       onUpdate(updated);
+      onSaved();
     } catch {
       setDateError(t.common.error);
     } finally {
@@ -416,6 +419,10 @@ export default function LeadDetailPage({
       .finally(() => setIsLoading(false));
   }, [id]);
 
+  function invalidateDashboard() {
+    router.refresh();
+  }
+
   async function handleStatusChange(e: React.ChangeEvent<HTMLSelectElement>) {
     if (!lead || isUpdating) return;
     const status = e.target.value as LeadStatus;
@@ -425,6 +432,7 @@ export default function LeadDetailPage({
     try {
       const updated = await changeLeadStatus(id, status);
       setLead(updated);
+      invalidateDashboard();
     } catch {
       setHeaderError(t.common.error);
     } finally {
@@ -441,6 +449,7 @@ export default function LeadDetailPage({
     try {
       const updated = await assignLead(id, userId);
       setLead(updated);
+      invalidateDashboard();
     } catch {
       setHeaderError(t.common.error);
     } finally {
@@ -588,7 +597,7 @@ export default function LeadDetailPage({
         </div>
 
         <div className="pt-6">
-          {activeTab === "overview" && <OverviewTab lead={lead} onUpdate={setLead} t={t} />}
+          {activeTab === "overview" && <OverviewTab lead={lead} onUpdate={setLead} onSaved={invalidateDashboard} t={t} />}
           {activeTab === "notes" && <NotesTab leadId={id} t={t} />}
           {activeTab === "activity" && <ActivityTab leadId={id} t={t} />}
           {activeTab === "properties" && <PropertiesTab leadId={id} />}
