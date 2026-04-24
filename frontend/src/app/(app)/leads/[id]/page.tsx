@@ -492,9 +492,9 @@ export default function LeadDetailPage({
           ← {t.common.back}
         </button>
 
-        <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900">
+            <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl">
               {lead.firstName} {lead.lastName}
             </h1>
             <p className="mt-1 text-sm text-gray-500">
@@ -504,7 +504,7 @@ export default function LeadDetailPage({
           </div>
 
           {/* Quick actions */}
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
             {/* Edit button */}
             <Button
               variant="secondary"
@@ -516,12 +516,12 @@ export default function LeadDetailPage({
 
             {/* Status selector */}
             <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-500">{actions.changeStatus}</span>
+              <span className="text-xs text-gray-500 shrink-0">{actions.changeStatus}</span>
               <select
                 value={lead.status}
                 onChange={handleStatusChange}
                 disabled={isUpdating}
-                className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
+                className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
               >
                 {ALL_STATUSES.map((s) => (
                   <option key={s} value={s}>{t.leads.status[s]}</option>
@@ -531,12 +531,12 @@ export default function LeadDetailPage({
 
             {/* Assign selector */}
             <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-500">{actions.assign}</span>
+              <span className="text-xs text-gray-500 shrink-0">{actions.assign}</span>
               <select
                 value={lead.assignedUserId ?? ""}
                 onChange={handleAssign}
                 disabled={isUpdating}
-                className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
+                className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
               >
                 <option value="">{t.leads.detail.overview.unassigned}</option>
                 {users.map((u) => (
@@ -566,8 +566,8 @@ export default function LeadDetailPage({
 
       {/* Tabs */}
       <div>
-        <div className="border-b border-gray-200">
-          <nav className="flex -mb-px gap-6">
+        <div className="border-b border-gray-200 overflow-x-auto">
+          <nav className="flex -mb-px gap-6 min-w-max">
             {tabs.map((tab) => (
               <button
                 key={tab.key}

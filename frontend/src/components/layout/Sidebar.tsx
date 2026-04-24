@@ -43,7 +43,7 @@ function UsersIcon() {
   );
 }
 
-export default function Sidebar() {
+export default function Sidebar({ mobileNav = false }: { mobileNav?: boolean }) {
   const t = useTranslations();
   const pathname = usePathname();
   const { user } = useAuthContext();
@@ -59,6 +59,30 @@ export default function Sidebar() {
 
   function isActive(href: string) {
     return pathname === href || pathname.startsWith(href + "/");
+  }
+
+  if (mobileNav) {
+    return (
+      <nav className="fixed bottom-0 left-0 right-0 z-50 flex border-t border-gray-200 bg-white">
+        {navItems.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={`
+              flex flex-1 flex-col items-center gap-1 py-2.5 text-xs font-medium transition-colors
+              ${
+                isActive(item.href)
+                  ? "text-indigo-600"
+                  : "text-gray-400"
+              }
+            `}
+          >
+            {item.icon}
+            <span>{item.label}</span>
+          </Link>
+        ))}
+      </nav>
+    );
   }
 
   return (

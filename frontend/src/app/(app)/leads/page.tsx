@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { getLeads, getAssignableUsers } from "@/lib/api/leads";
 import { useTranslations } from "@/lib/i18n";
@@ -191,6 +191,40 @@ type LeadsTableProps = {
   t: ReturnType<typeof useTranslations>;
 };
 
+function LeadCard({ lead, t }: { lead: LeadSummary; t: ReturnType<typeof useTranslations> }) {
+  return (
+    <Link
+      href={`/leads/${lead.id}`}
+      className="block rounded-xl border border-gray-200 bg-white p-4 active:bg-gray-50"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="font-medium text-gray-900 truncate">
+            {lead.firstName} {lead.lastName}
+          </p>
+          {lead.phone && (
+            <p className="mt-0.5 text-sm text-gray-500">{lead.phone}</p>
+          )}
+        </div>
+        <Badge variant="status" value={lead.status} label={t.leads.status[lead.status]} />
+      </div>
+
+      <div className="mt-3 flex items-center justify-between text-xs text-gray-400">
+        <span>
+          {lead.assignedUserName ?? (
+            <span className="italic">{t.leads.detail.overview.unassigned}</span>
+          )}
+        </span>
+        {lead.nextFollowUpDate ? (
+          <FollowUpDate iso={lead.nextFollowUpDate} status={lead.status} />
+        ) : (
+          <span>—</span>
+        )}
+      </div>
+    </Link>
+  );
+}
+
 function LeadsTable({ leads, t }: LeadsTableProps) {
   const router = useRouter();
 
@@ -206,100 +240,93 @@ function LeadsTable({ leads, t }: LeadsTableProps) {
   ];
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-gray-100 text-left">
-            {COLUMNS.map((col) => (
-              <th
-                key={col}
-                className="px-5 py-3 text-xs font-medium uppercase tracking-wider text-gray-400 whitespace-nowrap"
-              >
-                {col}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-100">
-          {leads.length === 0 ? (
-            <tr>
-              <td
-                colSpan={COLUMNS.length}
-                className="px-5 py-12 text-center text-sm text-gray-400"
-              >
-                {t.leads.noLeads}
-              </td>
+    <>
+      {/* Mobile card list */}
+      <div className="sm:hidden space-y-3 p-4">
+        {leads.length === 0 ? (
+          <p className="py-8 text-center text-sm text-gray-400">{t.leads.noLeads}</p>
+        ) : (
+          leads.map((lead) => <LeadCard key={lead.id} lead={lead} t={t} />)
+        )}
+      </div>
+
+      {/* Desktop table */}
+      <div className="hidden sm:block overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-gray-100 text-left">
+              {COLUMNS.map((col) => (
+                <th
+                  key={col}
+                  className="px-5 py-3 text-xs font-medium uppercase tracking-wider text-gray-400 whitespace-nowrap"
+                >
+                  {col}
+                </th>
+              ))}
             </tr>
-          ) : (
-            leads.map((lead) => (
-              <tr
-                key={lead.id}
-                onClick={() => router.push(`/leads/${lead.id}`)}
-                className="cursor-pointer hover:bg-gray-50 transition-colors"
-              >
-                {/* Nombre */}
-                <td className="px-5 py-3.5 font-medium text-gray-900 whitespace-nowrap">
-                  <Link
-                    href={`/leads/${lead.id}`}
-                    onClick={(e) => e.stopPropagation()}
-                    className="hover:text-indigo-600 transition-colors"
-                  >
-                    {lead.firstName} {lead.lastName}
-                  </Link>
-                </td>
-
-                {/* Teléfono */}
-                <td className="px-5 py-3.5 text-gray-600 whitespace-nowrap">
-                  {lead.phone ?? <span className="text-gray-300">—</span>}
-                </td>
-
-                {/* Correo */}
-                <td className="px-5 py-3.5 text-gray-600 max-w-[200px] truncate">
-                  {lead.email ?? <span className="text-gray-300">—</span>}
-                </td>
-
-                {/* Origen */}
-                <td className="px-5 py-3.5 text-gray-600 whitespace-nowrap">
-                  {lead.source ? t.leads.source[lead.source] : <span className="text-gray-300">—</span>}
-                </td>
-
-                {/* Estado */}
-                <td className="px-5 py-3.5 whitespace-nowrap">
-                  <Badge
-                    variant="status"
-                    value={lead.status}
-                    label={t.leads.status[lead.status]}
-                  />
-                </td>
-
-                {/* Agente */}
-                <td className="px-5 py-3.5 text-gray-600 whitespace-nowrap">
-                  {lead.assignedUserName ?? (
-                    <span className="italic text-gray-400">
-                      {t.leads.detail.overview.unassigned}
-                    </span>
-                  )}
-                </td>
-
-                {/* Próximo seguimiento */}
-                <td className="px-5 py-3.5 whitespace-nowrap">
-                  {lead.nextFollowUpDate ? (
-                    <FollowUpDate iso={lead.nextFollowUpDate} status={lead.status} />
-                  ) : (
-                    <span className="text-gray-300">—</span>
-                  )}
-                </td>
-
-                {/* Creado */}
-                <td className="px-5 py-3.5 text-gray-400 whitespace-nowrap">
-                  {formatDate(lead.createdAt)}
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {leads.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={COLUMNS.length}
+                  className="px-5 py-12 text-center text-sm text-gray-400"
+                >
+                  {t.leads.noLeads}
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-    </div>
+            ) : (
+              leads.map((lead) => (
+                <tr
+                  key={lead.id}
+                  onClick={() => router.push(`/leads/${lead.id}`)}
+                  className="cursor-pointer hover:bg-gray-50 transition-colors"
+                >
+                  <td className="px-5 py-3.5 font-medium text-gray-900 whitespace-nowrap">
+                    <Link
+                      href={`/leads/${lead.id}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="hover:text-indigo-600 transition-colors"
+                    >
+                      {lead.firstName} {lead.lastName}
+                    </Link>
+                  </td>
+                  <td className="px-5 py-3.5 text-gray-600 whitespace-nowrap">
+                    {lead.phone ?? <span className="text-gray-300">—</span>}
+                  </td>
+                  <td className="px-5 py-3.5 text-gray-600 max-w-[200px] truncate">
+                    {lead.email ?? <span className="text-gray-300">—</span>}
+                  </td>
+                  <td className="px-5 py-3.5 text-gray-600 whitespace-nowrap">
+                    {lead.source ? t.leads.source[lead.source] : <span className="text-gray-300">—</span>}
+                  </td>
+                  <td className="px-5 py-3.5 whitespace-nowrap">
+                    <Badge variant="status" value={lead.status} label={t.leads.status[lead.status]} />
+                  </td>
+                  <td className="px-5 py-3.5 text-gray-600 whitespace-nowrap">
+                    {lead.assignedUserName ?? (
+                      <span className="italic text-gray-400">
+                        {t.leads.detail.overview.unassigned}
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-5 py-3.5 whitespace-nowrap">
+                    {lead.nextFollowUpDate ? (
+                      <FollowUpDate iso={lead.nextFollowUpDate} status={lead.status} />
+                    ) : (
+                      <span className="text-gray-300">—</span>
+                    )}
+                  </td>
+                  <td className="px-5 py-3.5 text-gray-400 whitespace-nowrap">
+                    {formatDate(lead.createdAt)}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </>
   );
 }
 
@@ -367,11 +394,29 @@ type PageState =
   | { status: "error" }
   | { status: "ready"; data: PagedResponse<LeadSummary> };
 
+function filtersFromSearchParams(params: URLSearchParams): LeadFilters {
+  const filters: LeadFilters = { page: 0, size: 20 };
+  const status = params.get("status");
+  const assignedUserId = params.get("assignedUserId");
+  const source = params.get("source");
+  const followUpDue = params.get("followUpDue");
+  const search = params.get("search");
+  if (status) filters.status = status as LeadStatus;
+  if (assignedUserId) filters.assignedUserId = assignedUserId;
+  if (source) filters.source = source as LeadSource;
+  if (followUpDue === "true") filters.followUpDue = true;
+  if (search) filters.search = search;
+  return filters;
+}
+
 export default function LeadsPage() {
   const t = useTranslations();
+  const searchParams = useSearchParams();
+
+  const initialFilters = filtersFromSearchParams(searchParams);
 
   const [pageState, setPageState] = useState<PageState>({ status: "loading" });
-  const [filters, setFilters] = useState<LeadFilters>(DEFAULT_FILTERS);
+  const [filters, setFilters] = useState<LeadFilters>(initialFilters);
   const [users, setUsers] = useState<UserSummary[]>([]);
 
   const load = useCallback((f: LeadFilters) => {
@@ -383,8 +428,9 @@ export default function LeadsPage() {
 
   // Initial load — also fetch assignable users for the agent filter dropdown
   useEffect(() => {
-    load(DEFAULT_FILTERS);
+    load(initialFilters);
     getAssignableUsers().then(setUsers).catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [load]);
 
   function handleFiltersChange(next: LeadFilters) {

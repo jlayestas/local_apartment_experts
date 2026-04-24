@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { getDashboardSummary, getRecentLeads } from "@/lib/api/dashboard";
+import { getLeads } from "@/lib/api/leads";
+import { useAuthContext } from "@/lib/auth/context";
 import { useTranslations } from "@/lib/i18n";
 import Badge from "@/components/ui/Badge";
 import Spinner from "@/components/ui/Spinner";
@@ -26,15 +28,17 @@ function SummaryCard({
   value,
   accent,
   icon,
+  href,
 }: {
   label: string;
   value: number;
   accent: CardAccent;
   icon: React.ReactNode;
+  href?: string;
 }) {
   const cls = ACCENT_CLASSES[accent];
-  return (
-    <div className="flex items-start gap-4 rounded-xl border border-gray-200 bg-white p-5">
+  const inner = (
+    <>
       <div className={`rounded-lg p-2.5 ${cls.bg}`}>
         <span className={cls.icon}>{icon}</span>
       </div>
@@ -42,6 +46,23 @@ function SummaryCard({
         <p className="text-sm font-medium text-gray-500 leading-tight">{label}</p>
         <p className={`mt-1 text-3xl font-bold tabular-nums ${cls.value}`}>{value}</p>
       </div>
+    </>
+  );
+
+  if (href) {
+    return (
+      <Link
+        href={href}
+        className="flex items-start gap-4 rounded-xl border border-gray-200 bg-white p-5 transition-shadow hover:shadow-md active:opacity-90"
+      >
+        {inner}
+      </Link>
+    );
+  }
+
+  return (
+    <div className="flex items-start gap-4 rounded-xl border border-gray-200 bg-white p-5">
+      {inner}
     </div>
   );
 }
@@ -90,80 +111,180 @@ function RecentLeadsTable({
   t: ReturnType<typeof useTranslations>;
 }) {
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-gray-100 text-left">
-            {[
-              t.leads.table.name,
-              t.leads.table.status,
-              t.leads.table.urgency,
-              t.leads.table.agent,
-              t.leads.table.created,
-            ].map((col) => (
-              <th
-                key={col}
-                className="px-6 py-3 text-xs font-medium uppercase tracking-wider text-gray-400"
-              >
-                {col}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-100">
-          {leads.length === 0 ? (
-            <tr>
-              <td colSpan={5} className="px-6 py-10 text-center text-sm text-gray-400">
-                {t.common.noData}
-              </td>
-            </tr>
-          ) : (
-            leads.map((lead) => (
-              <tr key={lead.id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4">
-                  <Link
-                    href={`/leads/${lead.id}`}
-                    className="font-medium text-gray-900 hover:text-indigo-600 transition-colors"
-                  >
-                    {lead.firstName} {lead.lastName}
-                  </Link>
-                  {lead.email && (
-                    <p className="mt-0.5 text-xs text-gray-400">{lead.email}</p>
-                  )}
-                </td>
-                <td className="px-6 py-4">
-                  <Badge
-                    variant="status"
-                    value={lead.status}
-                    label={t.leads.status[lead.status]}
-                  />
-                </td>
-                <td className="px-6 py-4">
-                  <Badge
-                    variant="urgency"
-                    value={lead.urgencyLevel}
-                    label={t.leads.urgency[lead.urgencyLevel]}
-                  />
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-600">
+    <>
+      {/* Mobile card list */}
+      <div className="sm:hidden divide-y divide-gray-100">
+        {leads.length === 0 ? (
+          <p className="px-4 py-8 text-center text-sm text-gray-400">{t.common.noData}</p>
+        ) : (
+          leads.map((lead) => (
+            <Link
+              key={lead.id}
+              href={`/leads/${lead.id}`}
+              className="flex items-center justify-between gap-3 px-4 py-3.5 active:bg-gray-50"
+            >
+              <div className="min-w-0">
+                <p className="font-medium text-gray-900 truncate">
+                  {lead.firstName} {lead.lastName}
+                </p>
+                <p className="mt-0.5 text-xs text-gray-400">
                   {lead.assignedUserName ?? (
-                    <span className="italic text-gray-400">
-                      {t.leads.detail.overview.unassigned}
-                    </span>
+                    <span className="italic">{t.leads.detail.overview.unassigned}</span>
                   )}
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-400">
-                  {new Date(lead.createdAt).toLocaleDateString("es-MX", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                  })}
+                </p>
+              </div>
+              <Badge variant="status" value={lead.status} label={t.leads.status[lead.status]} />
+            </Link>
+          ))
+        )}
+      </div>
+
+      {/* Desktop table */}
+      <div className="hidden sm:block overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-gray-100 text-left">
+              {[
+                t.leads.table.name,
+                t.leads.table.status,
+                t.leads.table.urgency,
+                t.leads.table.agent,
+                t.leads.table.created,
+              ].map((col) => (
+                <th
+                  key={col}
+                  className="px-6 py-3 text-xs font-medium uppercase tracking-wider text-gray-400"
+                >
+                  {col}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {leads.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="px-6 py-10 text-center text-sm text-gray-400">
+                  {t.common.noData}
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ) : (
+              leads.map((lead) => (
+                <tr key={lead.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-6 py-4">
+                    <Link
+                      href={`/leads/${lead.id}`}
+                      className="font-medium text-gray-900 hover:text-indigo-600 transition-colors"
+                    >
+                      {lead.firstName} {lead.lastName}
+                    </Link>
+                    {lead.email && (
+                      <p className="mt-0.5 text-xs text-gray-400">{lead.email}</p>
+                    )}
+                  </td>
+                  <td className="px-6 py-4">
+                    <Badge variant="status" value={lead.status} label={t.leads.status[lead.status]} />
+                  </td>
+                  <td className="px-6 py-4">
+                    <Badge variant="urgency" value={lead.urgencyLevel} label={t.leads.urgency[lead.urgencyLevel]} />
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-600">
+                    {lead.assignedUserName ?? (
+                      <span className="italic text-gray-400">
+                        {t.leads.detail.overview.unassigned}
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-400">
+                    {new Date(lead.createdAt).toLocaleDateString("es-MX", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </>
+  );
+}
+
+// ── My follow-ups today ───────────────────────────────────────────────────────
+
+function MyFollowUps({
+  userId,
+  t,
+}: {
+  userId: string;
+  t: ReturnType<typeof useTranslations>;
+}) {
+  const [leads, setLeads] = useState<LeadSummary[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const mf = t.dashboard.myFollowUps;
+  const today = new Date().toISOString().slice(0, 10);
+
+  useEffect(() => {
+    getLeads({ followUpDue: true, assignedUserId: userId, size: 10 })
+      .then((res) => setLeads(res.content))
+      .catch(() => {})
+      .finally(() => setIsLoading(false));
+  }, [userId]);
+
+  const viewAllHref = `/leads?followUpDue=true&assignedUserId=${userId}`;
+
+  return (
+    <div className="rounded-xl border border-gray-200 bg-white">
+      <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
+        <h2 className="font-semibold text-gray-900">{mf.title}</h2>
+        <Link
+          href={viewAllHref}
+          className="text-sm font-medium text-indigo-600 hover:text-indigo-700 transition-colors"
+        >
+          {mf.viewAll} →
+        </Link>
+      </div>
+
+      {isLoading ? (
+        <div className="flex justify-center py-8">
+          <Spinner className="h-5 w-5 text-indigo-500" />
+        </div>
+      ) : leads.length === 0 ? (
+        <p className="px-6 py-8 text-center text-sm text-gray-400">{mf.empty}</p>
+      ) : (
+        <ul className="divide-y divide-gray-100">
+          {leads.map((lead) => {
+            const isOverdue = !!lead.nextFollowUpDate && lead.nextFollowUpDate < today;
+            return (
+              <li key={lead.id}>
+                <Link
+                  href={`/leads/${lead.id}`}
+                  className="flex items-center justify-between gap-4 px-6 py-4 hover:bg-gray-50 transition-colors active:bg-gray-100"
+                >
+                  <div className="min-w-0">
+                    <p className="font-medium text-gray-900 truncate">
+                      {lead.firstName} {lead.lastName}
+                    </p>
+                    {lead.nextFollowUpDate && (
+                      <p className={`mt-0.5 text-xs ${isOverdue ? "text-red-500 font-medium" : "text-gray-400"}`}>
+                        {new Date(lead.nextFollowUpDate).toLocaleDateString("es-MX", {
+                          day: "numeric",
+                          month: "short",
+                        })}
+                        {isOverdue && ` · ${mf.overdue}`}
+                      </p>
+                    )}
+                  </div>
+                  <div className="shrink-0">
+                    <Badge variant="status" value={lead.status} label={t.leads.status[lead.status]} />
+                  </div>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </div>
   );
 }
@@ -177,6 +298,7 @@ type PageState =
 
 export default function DashboardPage() {
   const t = useTranslations();
+  const { user } = useAuthContext();
   const [state, setState] = useState<PageState>({ status: "loading" });
 
   const load = useCallback(() => {
@@ -225,12 +347,14 @@ export default function DashboardPage() {
     value: number;
     accent: CardAccent;
     icon: React.ReactNode;
+    href?: string;
   }> = [
     {
       label: t.dashboard.summary.newLeads,
       value: summary.newLeadsCount,
       accent: "blue",
       icon: <IconSparkle />,
+      href: "/leads?status=NEW",
     },
     {
       label: t.dashboard.summary.unassigned,
@@ -243,12 +367,14 @@ export default function DashboardPage() {
       value: summary.dueTodayCount,
       accent: "yellow",
       icon: <IconClock />,
+      href: "/leads?followUpDue=true",
     },
     {
       label: t.dashboard.summary.overdue,
       value: summary.overdueCount,
       accent: "red",
       icon: <IconAlert />,
+      href: "/leads?followUpDue=true",
     },
   ];
 
@@ -262,6 +388,9 @@ export default function DashboardPage() {
           <SummaryCard key={card.label} {...card} />
         ))}
       </div>
+
+      {/* My follow-ups today — shown to all logged-in users */}
+      {user && <MyFollowUps userId={user.id} t={t} />}
 
       {/* Recent leads */}
       <div className="rounded-xl border border-gray-200 bg-white">
